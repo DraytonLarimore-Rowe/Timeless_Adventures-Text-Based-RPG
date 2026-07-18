@@ -4,29 +4,26 @@ import random
 from IPython.display import clear_output
 
 class player():
-    def __init__(self, name, level, baseHealth, health, maxHealth, startWeapon, weaponType, min_dam, max_dam, exp, max_exp, gold, bag):
+    def __init__(self, name, level, baseHealth, health, maxHealth, weapon, weaponType, min_dam, max_dam, exp, max_exp, gold, bag):
         self.name = name
         self.level = level
         self.baseHealth = baseHealth
         self.health = health
         self.maxHealth = maxHealth
-        self.startWeapon = startWeapon
+        self.weapon = weapon
+        self.weaponType = weaponType
         self.min_dam = min_dam
         self.max_dam = max_dam
         self.exp = exp
         self.max_exp = max_exp
         self.gold = gold
-        self.bag = {
-            "Small Potion": 0,
-            "Medium Potion": 0,
-            "Large Potion": 0
-        }
+        self.bag = {}
     def level_up(self):
         self.level += 1
         self.maxHealth = self.baseHealth + (50 * self.level)
         self.health = self.maxHealth
 # Class types
-warrior = player("Warrior", 1, 150, 150, 150, "Short Sword", "Sword", 0, 0, 0, 100, 100, {})
+warrior = player("Warrior", 1, 150, 150, 150, "Short Sword", "Sword", 0, 0, 0, 100, 1000, {})
 wizard = player("Wizard", 1, 75, 75, 75, "Simple Staff", "Staff", 0, 0, 0, 100, 100, {})
 rogue = player("Rogue", 1, 100, 100, 100, "Rugged Bow", "Bow", 0, 0, 0, 100, 100, {})
 bandit = player("Bandit", 1, 100, 100, 100, "Small Dagger", "Dagger", 0, 0, 0, 100, 100, {})
@@ -40,23 +37,25 @@ classes = {
 
 
 class weapon():
-    def __init__(self, name, weaponType, min_dam, max_dam, price):
+    def __init__(self, name, weaponType, min_dam, max_dam, shop_amount, price):
         self.name = name
+        self.weaponType = weaponType
         self.min_dam = min_dam
         self.max_dam = max_dam
+        self.shop_amount = shop_amount
         self.price = price
 
 # Starting Weapons
-ShortSword = weapon("Short Sword", "Sword", 10, 50, 50)
-SimpleStaff = weapon("Simple Staff", "Staff", 10, 65, 60)
-RuggedBow = weapon("Rugged Bow", "Bow", 10, 60, 55)
-SmallDagger = weapon("Small Dagger", "Dagger", 10, 25, 30)
+ShortSword = weapon("Short Sword", "Sword", 10, 50, 1, 50)
+SimpleStaff = weapon("Simple Staff", "Staff", 10, 65, 1, 60)
+RuggedBow = weapon("Rugged Bow", "Bow", 10, 60, 1, 55)
+SmallDagger = weapon("Small Dagger", "Dagger", 10, 25, 1, 30)
 
 # Purchasable Weapons
-LongSword = weapon("Long Sword", "Sword", 50, 125, 150)
-GreatStaff = weapon("Great Staff", "Staff", 50, 150, 175)
-StrongBow = weapon("Strong Bow", "Bow", 50, 140, 160)
-HardDagger = weapon("Hard Dagger", "Dagger", 50, 100, 125)
+LongSword = weapon("Long Sword", "Sword", 50, 125, 1, 150)
+GreatStaff = weapon("Great Staff", "Staff", 50, 150, 1, 175)
+StrongBow = weapon("Strong Bow", "Bow", 50, 140, 1, 160)
+HardDagger = weapon("Hard Dagger", "Dagger", 50, 100, 1, 125)
 
 StarterWeapons = {
     ShortSword.name: ShortSword,
@@ -103,51 +102,71 @@ Small_Potion = potion("Small Potion", 75, 10, 50)
 Medium_Potion = potion("Medium Potion", 150, 7, 100)
 Large_Potion = potion("Large Potion", 300, 5, 200)
 
+
+shop_potions = {
+    Small_Potion.name: Small_Potion,
+    Medium_Potion.name: Medium_Potion,
+    Large_Potion.name: Large_Potion
+}
+
 def buy_items(player):
     while True:
         # Refreshes the screen with correct item amount after every purchase
         clear_output()
+        potions = [Small_Potion, Medium_Potion, Large_Potion]
+        weapons = [LongSword, GreatStaff, StrongBow, HardDagger]
         print("\n--------- SHOP ---------")
         print("{:19} {}".format("Gold Held: ", player.gold))
         print("=" * 24)
-        print("{:17} {}| {}".format(Small_Potion.name, Small_Potion.shop_amount, Small_Potion.price))
-        print("{:17} {}| {}".format(Medium_Potion.name, Medium_Potion.shop_amount, Medium_Potion.price))
-        print("{:17} {}| {}".format(Large_Potion.name, Large_Potion.shop_amount, Large_Potion.price))
+        print("\n******** POTION ********")
+        print()
+        print("=" * 24)
+        for potion in potions:
+            print("{:17} {}| {}".format(potion.name, potion.shop_amount, potion.price))
         print("="*24)
+        print("\n******* WEAPONS *******")
+        print()
+        print("=" * 24)
+        for weapon in weapons:
+            if weapon.weaponType == player.weaponType:
+                print("{:17} {}| {}".format(weapon.name, weapon.shop_amount, weapon.price))
+        print("=" * 24)
         
-        purchase = input("\nWould you like to buy a potion? ").capitalize()
+        
+        purchase = input("\nWould you like to buy an item? ").capitalize()
         if purchase == "Yes":
-            purchase_choice = input("Small Potion, Medium Potion, or Large Potion").title()
+            purchase_choice = input("Please select and item: ").title()
 
-            bought_potion = None
+            bought_item = None
 
-            if purchase_choice == "Small Potion":
-                bought_potion = Small_Potion
-            elif purchase_choice == "Medium Potion":
-                bought_potion = Medium_Potion
-            elif purchase_choice == "Large Potion":
-                bought_potion = Large_Potion
+            if purchase_choice in shop_potions:
+                bought_item = shop_potions[purchase_choice]
+            elif purchase_choice in PurchasableWeapons:
+                bought_item = PurchasableWeapons[purchase_choice]
 
-            if bought_potion == None:
+            if bought_item == None:
                 print("That is not a valid purchase")
                 continue
 
-            if bought_potion.shop_amount >= 1:
-                if player.gold >= bought_potion.price:
-                    print("\nYou purchased {} for {} gold".format(bought_potion.name, bought_potion.price))
-                    player.gold -= bought_potion.price
+            if bought_item.shop_amount >= 1:
+                if player.gold >= bought_item.price:
+                    print("\nYou purchased {} for {} gold".format(bought_item.name, bought_item.price))
+                    player.gold -= bought_item.price
                     print("You have {} gold left".format(player.gold))
-                    bought_potion.shop_amount -= 1
-                    player.bag[bought_potion.name] += 1
+                    bought_item.shop_amount -= 1
+                    if bought_item.name in player.bag:
+                        player.bag[bought_item.name] += 1
+                    else:
+                        player.bag[bought_item.name] = 1
                     print("Press enter to continue")
                     input()
 
                 else:
-                    print("You don't have enough gold for that potion: PRESS ENTER")
+                    print("You don't have enough gold for that item: PRESS ENTER")
                     input()
 
             else:
-                print("That potion is out of stock: PRESS ENTER")
+                print("That item is out of stock: PRESS ENTER")
                 input()
 
         elif purchase == "No":
@@ -158,27 +177,20 @@ def open_bag(player):
     while True:
         clear_output()
         print("\n========== BAG ==========")
-        print("{:21} {}".format("Gold", player.gold))
-        print("{:21} {}".format(Small_Potion.name, player.bag["Small Potion"]))
-        print("{:21} {}".format(Medium_Potion.name, player.bag["Medium Potion"]))
-        print("{:21} {}".format(Large_Potion.name, player.bag["Large Potion"]))
+        print("{:22} {}".format("Gold", player.gold))
+        for item_name, amount in player.bag.items():
+            print("{:22} {}".format(item_name, amount))
         print("=" * 25)
 
         
-        use_potion = input("\nDrink a potion? ").capitalize()
-        if use_potion == "Yes":
-            potion_choice = input("Small Potion, Medium Potion, or Large Potion").title()
-
+        use_bag = input("\nDrink Potion or Equip Weapon (Type 'No' to close): ").title()
+        if use_bag == "Drink Potion":
+            potion_choice = input("Select a potion: ").title()
             chosen_potion = None
-            
-            if potion_choice == "Small Potion":
-                chosen_potion = Small_Potion
-            elif potion_choice == "Medium Potion":
-                chosen_potion = Medium_Potion
-            elif potion_choice == "Large Potion":
-                chosen_potion = Large_Potion
+            if potion_choice in shop_potions:
+                chosen_potion = shop_potions[potion_choice]
 
-            if chosen_potion == None:
+            elif chosen_potion == None:
                 print("That is not a valid option")
                 continue
                 
@@ -186,7 +198,8 @@ def open_bag(player):
                 print("You dont have that potion")
             elif player.health == player.maxHealth:
                 print("You cant use another potion right now")
-                break
+                print("Press ENTER to continue: ")
+                input()
             else:
                 print("\n You drank a {}".format(chosen_potion.name))
                 print("You healed for {}".format(min(chosen_potion.amount, player.maxHealth - player.health)))
@@ -194,7 +207,28 @@ def open_bag(player):
                 print("Your health is now {}/{}".format(player.health, player.maxHealth))
                 player.bag[chosen_potion.name] -= 1
                 break
-        elif use_potion == "No":
+        elif use_bag == "Equip Weapon":
+            weapon_choice = input("Select a Weapon: ").title()
+            chosen_weapon = None
+            equipped_weapon = player.weapon
+                
+            if weapon_choice in StarterWeapons:
+                chosen_weapon = StarterWeapons[weapon_choice]
+                player.weapon = chosen_weapon.name
+                player.min_dam = chosen_weapon.min_dam
+                player.max_dam = chosen_weapon.max_dam
+                
+            elif weapon_choice in PurchasableWeapons:
+                chosen_weapon = PurchasableWeapons[weapon_choice]
+                player.weapon = chosen_weapon.name
+                player.min_dam = chosen_weapon.min_dam
+                player.max_dam = chosen_weapon.max_dam
+
+            elif chosen_weapon == None:
+                print("That is not a valid option")
+                continue
+                
+        elif use_bag == "No":
             break 
 # The fighting sequence for enemies
 def battle(player, enemy):
@@ -251,8 +285,8 @@ if start == "Yes":
         class_select = input("\nSelect your class: ").capitalize()
         if class_select in classes:
             player = classes[class_select]
-            if player.startWeapon in StarterWeapons:
-                weapon_equip = StarterWeapons[player.startWeapon]
+            if player.weapon in StarterWeapons:
+                weapon_equip = StarterWeapons[player.weapon]
                 player.min_dam = weapon_equip.min_dam
                 player.max_dam = weapon_equip.max_dam
             clear_output()
