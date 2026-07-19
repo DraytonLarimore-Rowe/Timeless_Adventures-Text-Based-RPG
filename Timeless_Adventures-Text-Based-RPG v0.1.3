@@ -206,8 +206,10 @@ def open_bag(player):
                 print("That is not a valid option")
                 continue
                 
-            if player.bag[chosen_potion.name][0] == 0:
+            if chosen_potion.name not in player.bag or player.bag[chosen_potion.name][0] <= 0:
                 print("You dont have that potion")
+                print("\nPress ENTER to continue: ")
+                input()
             elif player.health == player.maxHealth:
                 print("You cant use another potion right now")
                 print("Press ENTER to continue: ")
@@ -217,8 +219,11 @@ def open_bag(player):
                 print("You healed for {}".format(min(chosen_potion.amount, player.maxHealth - player.health)))
                 player.health = min(player.health + chosen_potion.amount, player.maxHealth)
                 print("Your health is now {}/{}".format(player.health, player.maxHealth))
-                player.bag[chosen_potion.name][0] -= [1, chosen_potion.price - chosen_potion.price]
-                break
+                player.bag[chosen_potion.name][0] -= 1
+                if player.bag[chosen_potion.name][0] <= 0:
+                    del player.bag[chosen_potion.name]
+                print("Press ENTER to continue: ")
+                input()
                 
         # Equipping and Swapping out equipped weapon
         elif use_bag == "Equip Weapon":
