@@ -116,17 +116,21 @@ def buy_items(player):
         potions = [Small_Potion, Medium_Potion, Large_Potion]
         weapons = [LongSword, GreatStaff, StrongBow, HardDagger]
         print("\n--------- SHOP ---------")
-        print("{:19} {}".format("Gold Held: ", player.gold))
+        print("{:19} {}".format("Gold: ", player.gold))
         print("=" * 24)
         print("\n******** POTION ********")
         print()
         print("=" * 24)
+        print("{:8} {} {}".format("Name: ", "Amount: ", "Price:"))
+        print("-" * 24)
         for potion in potions:
             print("{:17} {}| {}".format(potion.name, potion.shop_amount, potion.price))
         print("="*24)
         print("\n******* WEAPONS *******")
         print()
         print("=" * 24)
+        print("{:8} {} {}".format("Name: ", "Amount: ", "Price:"))
+        print("-" * 24)
         for weapon in weapons:
             if weapon.weaponType == player.weaponType:
                 print("{:17} {}| {}".format(weapon.name, weapon.shop_amount, weapon.price))
@@ -141,8 +145,10 @@ def buy_items(player):
 
             if purchase_choice in shop_potions:
                 bought_item = shop_potions[purchase_choice]
+                item_price = bought_item.price
             elif purchase_choice in PurchasableWeapons:
                 bought_item = PurchasableWeapons[purchase_choice]
+                item_price = bought_item.price
 
             if bought_item == None:
                 print("That is not a valid purchase")
@@ -155,18 +161,18 @@ def buy_items(player):
                     print("You have {} gold left".format(player.gold))
                     bought_item.shop_amount -= 1
                     if bought_item.name in player.bag:
-                        player.bag[bought_item.name] += 1
+                        player.bag[bought_item.name][0] += 1
                     else:
-                        player.bag[bought_item.name] = 1
-                    print("Press enter to continue")
+                        player.bag[bought_item.name] = [1, bought_item.price]
+                    print("\nPress enter to continue")
                     input()
 
                 else:
-                    print("You don't have enough gold for that item: PRESS ENTER")
+                    print("\nYou don't have enough gold for that item: PRESS ENTER")
                     input()
 
             else:
-                print("That item is out of stock: PRESS ENTER")
+                print("\nThat item is out of stock: PRESS ENTER")
                 input()
 
         elif purchase == "No":
@@ -177,13 +183,19 @@ def open_bag(player):
     while True:
         clear_output()
         print("\n========== BAG ==========")
-        print("{:22} {}".format("Gold", player.gold))
-        for item_name, amount in player.bag.items():
-            print("{:22} {}".format(item_name, amount))
+        print("{:19} {}".format("Gold: ", player.gold))
+        print("=" * 25)
+        print("{:9} {} {}".format("Name: ", "Amount: ", "Price:"))
+        print("-" * 25)
+        for item_name, details in player.bag.items():
+            amount = details[0]
+            price = details[1]
+            print("{:18} {}| {}".format(item_name, amount, price))
         print("=" * 25)
 
         
         use_bag = input("\nDrink Potion or Equip Weapon (Type 'No' to close): ").title()
+        # Drinking a potion
         if use_bag == "Drink Potion":
             potion_choice = input("Select a potion: ").title()
             chosen_potion = None
@@ -194,7 +206,7 @@ def open_bag(player):
                 print("That is not a valid option")
                 continue
                 
-            if player.bag[chosen_potion.name] == 0:
+            if player.bag[chosen_potion.name][0] == 0:
                 print("You dont have that potion")
             elif player.health == player.maxHealth:
                 print("You cant use another potion right now")
@@ -205,28 +217,42 @@ def open_bag(player):
                 print("You healed for {}".format(min(chosen_potion.amount, player.maxHealth - player.health)))
                 player.health = min(player.health + chosen_potion.amount, player.maxHealth)
                 print("Your health is now {}/{}".format(player.health, player.maxHealth))
-                player.bag[chosen_potion.name] -= 1
+                player.bag[chosen_potion.name][0] -= [1, chosen_potion.price - chosen_potion.price]
                 break
+                
+        # Equipping and Swapping out equipped weapon
         elif use_bag == "Equip Weapon":
             weapon_choice = input("Select a Weapon: ").title()
             chosen_weapon = None
-            equipped_weapon = player.weapon
-                
+            equipped_weapon = None
+
+
             if weapon_choice in StarterWeapons:
                 chosen_weapon = StarterWeapons[weapon_choice]
-                player.weapon = chosen_weapon.name
-                player.min_dam = chosen_weapon.min_dam
-                player.max_dam = chosen_weapon.max_dam
-                
             elif weapon_choice in PurchasableWeapons:
                 chosen_weapon = PurchasableWeapons[weapon_choice]
-                player.weapon = chosen_weapon.name
-                player.min_dam = chosen_weapon.min_dam
-                player.max_dam = chosen_weapon.max_dam
-
             elif chosen_weapon == None:
                 print("That is not a valid option")
                 continue
+                
+            if chosen_weapon.name != StarterWeapons or chosen_weapon.name != PurchasableWeapons:
+                if player.weapon in StarterWeapons:
+                    equipped_weapon = StarterWeapons[player.weapon]
+                    if player.weapon in player.bag:
+                        player.bag[player.weapon][0] += 1
+                    else:
+                        player.bag[player.weapon] = [1, equipped_weapon.price]
+                elif player.weapon in PurchasableWeapons:
+                    equipped_weapon = PurchasableWeapons[player.weapon]
+                    if player.weapon in player.bag:
+                        player.bag[player.weapon][0] += 1
+                    else:
+                        player.bag[player.weapon] = [1, equipped_weapon.price]
+                        
+            player.weapon = chosen_weapon.name
+            player.min_dam = chosen_weapon.min_dam
+            player.max_dam = chosen_weapon.max_dam
+            del player.bag[chosen_weapon.name]
                 
         elif use_bag == "No":
             break 
@@ -293,7 +319,7 @@ if start == "Yes":
             break
         else:
             ("That is not a playable class")
-    print("""\nYou begin your adventure in the Dark Woods 
+    print("""    You begin your adventure in the Dark Woods 
     around Dark Lord Ingrils' Castle. Monsters seem to
     be wandering about on the grounds. Be careful as 
     you fight them. Many of them are powerful.""")
