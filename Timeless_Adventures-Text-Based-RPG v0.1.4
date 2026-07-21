@@ -46,10 +46,10 @@ class weapon():
         self.price = price
 
 # Starting Weapons
-ShortSword = weapon("Short Sword", "Sword", 10, 50, 1, 50)
-SimpleStaff = weapon("Simple Staff", "Staff", 10, 65, 1, 60)
-RuggedBow = weapon("Rugged Bow", "Bow", 10, 60, 1, 55)
-SmallDagger = weapon("Small Dagger", "Dagger", 10, 25, 1, 30)
+ShortSword = weapon("Short Sword", "Sword", 10, 50, 0, 50)
+SimpleStaff = weapon("Simple Staff", "Staff", 10, 65, 0, 60)
+RuggedBow = weapon("Rugged Bow", "Bow", 10, 60, 0, 55)
+SmallDagger = weapon("Small Dagger", "Dagger", 10, 25, 0, 30)
 
 # Purchasable Weapons
 LongSword = weapon("Long Sword", "Sword", 50, 125, 1, 150)
@@ -114,7 +114,8 @@ def buy_items(player):
         # Refreshes the screen with correct item amount after every purchase
         clear_output()
         potions = [Small_Potion, Medium_Potion, Large_Potion]
-        weapons = [LongSword, GreatStaff, StrongBow, HardDagger]
+        weapons = [ShortSword, SimpleStaff, RuggedBow, SmallDagger, 
+                   LongSword, GreatStaff, StrongBow, HardDagger]
         print("\n--------- SHOP ---------")
         print("{:19} {}".format("Gold: ", player.gold))
         print("=" * 24)
@@ -124,7 +125,8 @@ def buy_items(player):
         print("{:8} {} {}".format("Name: ", "Amount: ", "Price:"))
         print("-" * 24)
         for potion in potions:
-            print("{:17} {}| {}".format(potion.name, potion.shop_amount, potion.price))
+            if potion.shop_amount > 0:
+                print("{:17} {}| {}".format(potion.name, potion.shop_amount, potion.price))
         print("="*24)
         print("\n******* WEAPONS *******")
         print()
@@ -132,14 +134,59 @@ def buy_items(player):
         print("{:8} {} {}".format("Name: ", "Amount: ", "Price:"))
         print("-" * 24)
         for weapon in weapons:
-            if weapon.weaponType == player.weaponType:
-                print("{:17} {}| {}".format(weapon.name, weapon.shop_amount, weapon.price))
+            if weapon.shop_amount > 0:
+                if weapon.weaponType == player.weaponType:
+                    print("{:17} {}| {}".format(weapon.name, weapon.shop_amount, weapon.price))
         print("=" * 24)
         
         
-        purchase = input("\nWould you like to buy an item? ").capitalize()
-        if purchase == "Yes":
-            purchase_choice = input("Please select and item: ").title()
+        purchase_sell = input("\nWould you like to Buy or Sell an item? ").capitalize()
+        if purchase_sell == "Sell":
+            sell_price = 0
+            
+            clear_output()
+            print("\n========== BAG ==========")
+            print("{:19} {}".format("Gold: ", player.gold))
+            print("=" * 25)
+            print("{:9} {} {}".format("Name: ", "Amount: ", "Price:"))
+            print("-" * 25)
+            for item_name, details in player.bag.items():
+                amount = details[0]
+                price = details[1]
+                print("{:18} {}| {}".format(item_name, amount, price))
+            print("=" * 25)
+
+            sell_option = input("What item would you like to sell? ").title()
+            if sell_option not in player.bag:
+                print("You don't have that item")
+                print("\nPress ENTER to continue: ")
+                input()
+            elif sell_option in shop_potions:
+                print("You cannot sell potions")
+                print("\nPress ENTER to continue: ")
+                input()
+            else:
+                sell_price = player.bag[sell_option][1]
+                sell_confirm = input("You want to sell {} for {} gold? ".format(sell_option, sell_price)).capitalize()
+                if sell_confirm == "Yes":
+                    player.gold += sell_price
+                    player.bag[sell_option][0] -= 1
+                    if player.bag[sell_option][0] == 0:
+                        del player.bag[sell_option]
+                    if sell_option in StarterWeapons:
+                        StarterWeapons[sell_option].shop_amount += 1
+                    elif sell_option in PurchasableWeapons:
+                        PurchasableWeapons[sell_option].shop_amount += 1
+                    
+                    print("\nYou sold {} for {} gold".format(sell_option, sell_price))
+                    print("\nYou now have {} gold".format(player.gold))
+                    print("\nPress ENTER to continue: ")
+                    input()
+                elif sell_confirm == "No":
+                    continue
+        
+        elif purchase_sell == "Buy":
+            purchase_choice = input("Please select an item to buy: ").title()
 
             bought_item = None
 
@@ -148,6 +195,9 @@ def buy_items(player):
                 item_price = bought_item.price
             elif purchase_choice in PurchasableWeapons:
                 bought_item = PurchasableWeapons[purchase_choice]
+                item_price = bought_item.price
+            elif purchase_choice in StarterWeapons:
+                bought_item = StarterWeapons[purchase_choice]
                 item_price = bought_item.price
 
             if bought_item == None:
@@ -175,7 +225,7 @@ def buy_items(player):
                 print("\nThat item is out of stock: PRESS ENTER")
                 input()
 
-        elif purchase == "No":
+        elif purchase_sell == "No":
             clear_output()
             break
 
@@ -323,7 +373,7 @@ if start == "Yes":
             clear_output()
             break
         else:
-            ("That is not a playable class")
+            print("That is not a playable class")
     print("""    You begin your adventure in the Dark Woods 
     around Dark Lord Ingrils' Castle. Monsters seem to
     be wandering about on the grounds. Be careful as 
