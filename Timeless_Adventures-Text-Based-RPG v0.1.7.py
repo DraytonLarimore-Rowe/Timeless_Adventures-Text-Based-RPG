@@ -7,6 +7,34 @@ import subprocess
 def clear_screen():
     subprocess.run("cls" if os.name == 'nt' else "clear", shell=True)
 
+def start_screen():
+    while True:
+        clear_screen()
+        print("=" * 32)
+        print("      TIMELESS ADVENTURES")
+        print("=" * 32)
+        print("\n           NEW GAME")
+        print("\n             LOAD")
+        print("\n             EXIT")
+        print()
+        print("=" * 32)
+
+        choice = input("\nSelect an option: ").capitalize()
+        if choice == "New game":
+            clear_screen()
+            break
+        elif choice == "Load":
+            print("\nLoad feature is not available yet")
+            input("\nPress ENTER to continue: ")
+        elif choice == "Exit":
+            print("\nExiting the game...")
+            exit()
+        else:
+            print("\nInvalid option. Please try again.")
+            input("\nPress ENTER to continue: ")
+
+
+
 class player():
     def __init__(self, name, level, baseHealth, health, maxHealth, weapon, weaponType, min_dam, max_dam, exp, max_exp, gold, bag):
         self.name = name
@@ -385,6 +413,7 @@ def battle(player, enemy):
 
 # --- GAME START ---
 clear_screen()
+start_screen()
 print("""Welcome to Timeless Adventure! You take up the mantle of a hero
 who has gotten call from the king to take down Ingril the Dark Lord. """)
 
