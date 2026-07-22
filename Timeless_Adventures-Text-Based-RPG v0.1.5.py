@@ -2,6 +2,7 @@
 
 import random
 import os
+import subprocess
 
 class player():
     def __init__(self, name, level, baseHealth, health, maxHealth, weapon, weaponType, min_dam, max_dam, exp, max_exp, gold, bag):
@@ -135,7 +136,7 @@ shop_potions = {
 def buy_items(player):
     while True:
         # Refreshes the screen with correct item amount after every purchase
-        os.system('clear')
+        subprocess.run("cls" if os.name == 'nt' else "clear", shell=True)
         potions = [Small_Potion, Medium_Potion, Large_Potion]
         weapons = [ShortSword, SimpleStaff, RuggedBow, SmallDagger, 
                    LongSword, GreatSword, GreatStaff, AncientStaff,
@@ -168,7 +169,7 @@ def buy_items(player):
         if purchase_sell == "Sell":
             sell_price = 0
             
-            os.system('clear')
+            subprocess.run("cls" if os.name == 'nt' else "clear", shell=True)
             print("\n========== BAG ==========")
             print("{:19} {}".format("Gold: ", player.gold))
             print("=" * 25)
@@ -250,12 +251,12 @@ def buy_items(player):
                 input()
 
         elif purchase_sell == "No":
-            os.system('clear')
+            subprocess.run("cls" if os.name == 'nt' else "clear", shell=True)
             break
 
 def open_bag(player):
     while True:
-        os.system('clear')
+        subprocess.run("cls" if os.name == 'nt' else "clear", shell=True)
         print("\n========== BAG ==========")
         print("{:19} {}".format("Gold: ", player.gold))
         print("=" * 25)
@@ -338,8 +339,8 @@ def open_bag(player):
 # The fighting sequence for enemies
 def battle(player, enemy):
     while True:
-        os.system('clear')
-        damage = input("\nAttack {}? ".format(enemy.name))
+        subprocess.run("cls" if os.name == 'nt' else "clear", shell=True)
+        damage = input("\nAttack {}? ".format(enemy.name)).capitalize()
         if damage == "Yes":
             player_damage = random.randint(player.min_dam, player.max_dam)
             enemy.health -= player_damage
@@ -358,7 +359,7 @@ def battle(player, enemy):
                 break
             
             if enemy.health <= 0:
-                os.system('clear')
+                subprocess.run("cls" if os.name == 'nt' else "clear", shell=True)
                 print("\nYou defeated the {}".format(enemy.name))
                 player.exp += enemy.exp
                 enemy.reset()
@@ -373,7 +374,7 @@ def battle(player, enemy):
                 input("\nPress ENTER to continue ")
                 break
         elif damage == "No":
-            os.system('clear')
+            subprocess.run("cls" if os.name == 'nt' else "clear", shell=True)
             print("You ran away safely")
             input("\nPress ENTER to continue ")
             break
@@ -398,7 +399,7 @@ if start == "Yes":
                 weapon_equip = StarterWeapons[player.weapon]
                 player.min_dam = weapon_equip.min_dam
                 player.max_dam = weapon_equip.max_dam
-            os.system('clear')
+            subprocess.run("cls" if os.name == 'nt' else "clear", shell=True)
             break
         else:
             print("That is not a playable class")
