@@ -1,7 +1,7 @@
 # Timeless Adventure Text-based RPG
 
 import random
-from IPython.display import clear_output
+import os
 
 class player():
     def __init__(self, name, level, baseHealth, health, maxHealth, weapon, weaponType, min_dam, max_dam, exp, max_exp, gold, bag):
@@ -23,10 +23,10 @@ class player():
         self.maxHealth = self.baseHealth + (50 * self.level)
         self.health = self.maxHealth
 # Class types
-warrior = player("Warrior", 1, 150, 150, 150, "Short Sword", "Sword", 0, 0, 0, 100, 1000, {})
-wizard = player("Wizard", 1, 75, 75, 75, "Simple Staff", "Staff", 0, 0, 0, 100, 100, {})
-rogue = player("Rogue", 1, 100, 100, 100, "Rugged Bow", "Bow", 0, 0, 0, 100, 100, {})
-bandit = player("Bandit", 1, 100, 100, 100, "Small Dagger", "Dagger", 0, 0, 0, 100, 100, {})
+warrior = player("Warrior", 1, 150, 150, 150, "Short Sword", "Sword", 0, 0, 0, 100, 50, {})
+wizard = player("Wizard", 1, 75, 75, 75, "Simple Staff", "Staff", 0, 0, 0, 100, 50, {})
+rogue = player("Rogue", 1, 100, 100, 100, "Rugged Bow", "Bow", 0, 0, 0, 100, 50, {})
+bandit = player("Bandit", 1, 100, 100, 100, "Small Dagger", "Dagger", 0, 0, 0, 100, 50, {})
 
 classes = {
     warrior.name: warrior,
@@ -52,10 +52,22 @@ RuggedBow = weapon("Rugged Bow", "Bow", 10, 60, 0, 55)
 SmallDagger = weapon("Small Dagger", "Dagger", 10, 25, 0, 30)
 
 # Purchasable Weapons
+# Swords
 LongSword = weapon("Long Sword", "Sword", 50, 125, 1, 150)
+GreatSword = weapon("Great Sword", "Sword", 75, 150, 1, 300)
+
+# Staves
 GreatStaff = weapon("Great Staff", "Staff", 50, 150, 1, 175)
+AncientStaff = weapon("Ancient Staff", "Staff", 90, 180, 1, 350)
+
+# Bows
 StrongBow = weapon("Strong Bow", "Bow", 50, 140, 1, 160)
+HardenedBow = weapon("Hardened Bow", "Bow", 80, 175, 1, 300)
+
+#Daggers
 HardDagger = weapon("Hard Dagger", "Dagger", 50, 100, 1, 125)
+SteelDagger = weapon("Steel Dagger", "Dagger", 65, 150, 1, 200)
+
 
 StarterWeapons = {
     ShortSword.name: ShortSword,
@@ -65,10 +77,21 @@ StarterWeapons = {
 }
 
 PurchasableWeapons = {
+    # Swords
     LongSword.name: LongSword,
+    GreatSword.name: GreatSword,
+
+    # Staves
     GreatStaff.name: GreatStaff,
+    AncientStaff.name: AncientStaff,
+
+    # Bows
     StrongBow.name: StrongBow,
-    HardDagger.name: HardDagger
+    HardenedBow.name: HardenedBow,
+
+    # Daggers
+    HardDagger.name: HardDagger,
+    SteelDagger.name: SteelDagger
 }
 
 class monster():
@@ -112,10 +135,11 @@ shop_potions = {
 def buy_items(player):
     while True:
         # Refreshes the screen with correct item amount after every purchase
-        clear_output()
+        os.system('clear')
         potions = [Small_Potion, Medium_Potion, Large_Potion]
         weapons = [ShortSword, SimpleStaff, RuggedBow, SmallDagger, 
-                   LongSword, GreatStaff, StrongBow, HardDagger]
+                   LongSword, GreatSword, GreatStaff, AncientStaff,
+                   StrongBow, HardenedBow, HardDagger, SteelDagger]
         print("\n--------- SHOP ---------")
         print("{:19} {}".format("Gold: ", player.gold))
         print("=" * 24)
@@ -144,7 +168,7 @@ def buy_items(player):
         if purchase_sell == "Sell":
             sell_price = 0
             
-            clear_output()
+            os.system('clear')
             print("\n========== BAG ==========")
             print("{:19} {}".format("Gold: ", player.gold))
             print("=" * 25)
@@ -226,12 +250,12 @@ def buy_items(player):
                 input()
 
         elif purchase_sell == "No":
-            clear_output()
+            os.system('clear')
             break
 
 def open_bag(player):
     while True:
-        clear_output()
+        os.system('clear')
         print("\n========== BAG ==========")
         print("{:19} {}".format("Gold: ", player.gold))
         print("=" * 25)
@@ -314,7 +338,7 @@ def open_bag(player):
 # The fighting sequence for enemies
 def battle(player, enemy):
     while True:
-        clear_output(wait=True)
+        os.system('clear')
         damage = input("\nAttack {}? ".format(enemy.name))
         if damage == "Yes":
             player_damage = random.randint(player.min_dam, player.max_dam)
@@ -327,12 +351,14 @@ def battle(player, enemy):
                 print("\nThe {} attacks you for {}".format(enemy.name, enemy_damage))
                 player.health -= enemy_damage
                 print("You have {}/{} health left".format(player.health, player.maxHealth))
+                input("Press ENTER to continue ")
             if player.health <= 0:
                 print("You have been defeated")
+                input("Press ENTER to continue ")
                 break
             
             if enemy.health <= 0:
-                clear_output()
+                os.system('clear')
                 print("\nYou defeated the {}".format(enemy.name))
                 player.exp += enemy.exp
                 enemy.reset()
@@ -344,10 +370,12 @@ def battle(player, enemy):
                 print("You gained {} Gold".format(victory_gold))
                 print("You now have {} Gold".format(player.gold))
                 print("\n{} out of {} Exp".format(player.exp, player.max_exp))
+                input("\nPress ENTER to continue ")
                 break
         elif damage == "No":
-            clear_output()
+            os.system('clear')
             print("You ran away safely")
+            input("\nPress ENTER to continue ")
             break
 
 
@@ -370,7 +398,7 @@ if start == "Yes":
                 weapon_equip = StarterWeapons[player.weapon]
                 player.min_dam = weapon_equip.min_dam
                 player.max_dam = weapon_equip.max_dam
-            clear_output()
+            os.system('clear')
             break
         else:
             print("That is not a playable class")
@@ -383,7 +411,7 @@ if start == "Yes":
 
     while True:
         # Gaining Exp
-        option = input("\nChoose: Attack, Bag, Shop, Quit").capitalize()
+        option = input("\nChoose: Attack, Bag, Shop, Quit ").capitalize()
         if option == "Bag":
             open_bag(player)
             
@@ -394,7 +422,15 @@ if start == "Yes":
             monster_list = [Skeleton, Vampire, Werewolf]
             enemy = random.choice(monster_list)
             print("\nA {} has appeared.".format(enemy.name))
-            battle(player, enemy)
+            if enemy.level > player.level:
+                print("A level {} {} has appeared. You are level {}.".format(enemy.level, enemy.name, player.level))
+                fight_anyway = input("Fight anyway? Yes or No: ").capitalize()
+                if fight_anyway == "Yes":
+                    battle(player, enemy)
+                else:
+                    print("You got away Safely.")
+            else:
+                battle(player, enemy)
             
         elif option == "Quit":
             break
