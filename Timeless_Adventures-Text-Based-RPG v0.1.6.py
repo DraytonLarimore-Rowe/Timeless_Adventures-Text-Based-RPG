@@ -4,6 +4,9 @@ import random
 import os
 import subprocess
 
+def clear_screen():
+    subprocess.run("cls" if os.name == 'nt' else "clear", shell=True)
+
 class player():
     def __init__(self, name, level, baseHealth, health, maxHealth, weapon, weaponType, min_dam, max_dam, exp, max_exp, gold, bag):
         self.name = name
@@ -251,12 +254,12 @@ def buy_items(player):
                 input()
 
         elif purchase_sell == "No":
-            subprocess.run("cls" if os.name == 'nt' else "clear", shell=True)
+            clear_screen()
             break
 
 def open_bag(player):
     while True:
-        subprocess.run("cls" if os.name == 'nt' else "clear", shell=True)
+        clear_screen()
         print("\n========== BAG ==========")
         print("{:19} {}".format("Gold: ", player.gold))
         print("=" * 25)
@@ -339,7 +342,7 @@ def open_bag(player):
 # The fighting sequence for enemies
 def battle(player, enemy):
     while True:
-        subprocess.run("cls" if os.name == 'nt' else "clear", shell=True)
+        clear_screen()
         damage = input("\nAttack {}? ".format(enemy.name)).capitalize()
         if damage == "Yes":
             player_damage = random.randint(player.min_dam, player.max_dam)
@@ -359,7 +362,7 @@ def battle(player, enemy):
                 break
             
             if enemy.health <= 0:
-                subprocess.run("cls" if os.name == 'nt' else "clear", shell=True)
+                clear_screen()
                 print("\nYou defeated the {}".format(enemy.name))
                 player.exp += enemy.exp
                 enemy.reset()
@@ -374,13 +377,14 @@ def battle(player, enemy):
                 input("\nPress ENTER to continue ")
                 break
         elif damage == "No":
-            subprocess.run("cls" if os.name == 'nt' else "clear", shell=True)
+            clear_screen()
             print("You ran away safely")
             input("\nPress ENTER to continue ")
             break
 
 
 # --- GAME START ---
+clear_screen()
 print("""Welcome to Timeless Adventure! You take up the mantle of a hero
 who has gotten call from the king to take down Ingril the Dark Lord. """)
 
@@ -399,7 +403,7 @@ if start == "Yes":
                 weapon_equip = StarterWeapons[player.weapon]
                 player.min_dam = weapon_equip.min_dam
                 player.max_dam = weapon_equip.max_dam
-            subprocess.run("cls" if os.name == 'nt' else "clear", shell=True)
+            clear_screen()
             break
         else:
             print("That is not a playable class")
